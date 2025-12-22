@@ -20,8 +20,24 @@
 Перед запуском проекта необходимо установить следующие пакеты:
 - **node-telegram-bot-api** - библиотека-обертка для работы с api телеграмма
 
+## .env
+# Токен бота от @BotFather
+TELEGRAM_BOT_TOKEN=8215790962:AAEVqBfYsKSp6GLQOhNuB_T-j0MidJiSjGU
+# URL прод фронта
+FRONT_URL=https://spbclimbkids.vercel.app/allclimb
+# URL вашего NestJS API
+API_URL=https://localhost:3000
+# Дополнительные настройки (опционально)
+NODE_ENV=development
+LOG_LEVEL=info
+
 ## Запуск бота
 1. Загрузи все используемые библиотеки командой: <br>
 `npm i`<br>
 2. Запуск в dev режиме: <br>
 `npm run dev:watch`<br>
+
+## Деплой на vercel 
+Build command: npx tsc
+Output directory: dist
+Install command: npm i

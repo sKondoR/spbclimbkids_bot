@@ -22,5 +22,13 @@
     "ts-node": "^10.9.1",
     "ts-node-dev": "^2.0.0",
     "typescript": "^5.2.2"
+  },
+    "engines": {
+    "node": "18.x"
+  },
+  "vercel": {
+    "buildCommand": "npm run build",
+    "outputDirectory": "dist",
+    "installCommand": "npm install"
   }
 }
