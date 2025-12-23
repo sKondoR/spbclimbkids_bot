@@ -13,20 +13,19 @@
 - команда "/start" - Начать работу
 - команда "/climbers" - выдает список уже загруженных с Allclimb на spbclimbkids скалолазов
 - команда "/climber <allClimbId>" - выдает инфу о скалолазе: имя, баллы, пролазы
-- команда "/leads <allClimbId> <query>" - Получить пролазы трудности скалолаза, можно добавить query с поиском по названию трассы, региону или категории ("Show must go on"/"Гуамка"/"7")
-- команда "/boulders <allClimbId> <query>"  - Получить пролазы боудеров скалолаза, можно добавить query с поиском по названию трассы, региону или категории ("Show must go on"/"Гуамка"/"7")
+- команда "/leads <allClimbId> <query>" - Получить пролазы трудности скалолаза, можно добавить query с поиском по названию трассы, региону или категории ("Show must go on"; "Гуамка"; "7")
+- команда "/boulders <allClimbId> <query>"  - Получить пролазы боудеров скалолаза, можно добавить query с поиском по названию трассы, региону или категории ("Show must go on"; "Гуамка"; "7")
   
 ## Используемые библиотеки
-Перед запуском проекта необходимо установить следующие пакеты:
 - **node-telegram-bot-api** - библиотека-обертка для работы с api телеграмма
 
 ## .env
-TELEGRAM_BOT_TOKEN=Токен бота от @BotFather
-FRONT_URL=URL прод фронта
-API_URL=URL вашего NestJS API
-Дополнительные настройки (опционально)
-NODE_ENV=development
-LOG_LEVEL=info
+TELEGRAM_BOT_TOKEN=Токен бота от @BotFather<br>
+FRONT_URL=URL прод фронта<br>
+API_URL=URL вашего NestJS API<br>
+Дополнительные настройки (опционально):<br>
+NODE_ENV=development<br>
+LOG_LEVEL=info<br>
 
 ## Запуск бота
 1. Загрузи все используемые библиотеки командой: <br>
@@ -34,5 +33,5 @@ LOG_LEVEL=info
 2. Запуск в dev режиме: <br>
 `npm run dev:watch`<br>
 
-
+<br><br>
 задеплоен на render.com
