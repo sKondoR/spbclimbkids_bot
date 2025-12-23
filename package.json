@@ -26,10 +26,5 @@
   },
   "engines": {
     "node": "24.x"
-  },
-  "vercel": {
-    "buildCommand": "npm run build",
-    "outputDirectory": "dist",
-    "installCommand": "npm install"
   }
 }
