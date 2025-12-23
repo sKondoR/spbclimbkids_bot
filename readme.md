@@ -1,4 +1,4 @@
-# spbclimbkids-bot
+# @spbclimbkids_bot
 Телеграмм-бот, позволяющий быстро посмотреть данные и пролазы скалолазов с Allclimb.
 Написан на nodejs.
 

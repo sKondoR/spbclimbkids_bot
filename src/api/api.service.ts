@@ -4,7 +4,7 @@ import axios, { AxiosInstance } from 'axios';
 import { ConfigService } from '../config/config.service';
 import { IClimber } from '../bot/climber.interface';
 
-// const ca = fs.readFileSync('./localhost+2-key.pem');
+// const ca = fs.readFileSync('');
 
 export class ApiService {
   private readonly client: AxiosInstance;
@@ -27,7 +27,7 @@ export class ApiService {
       }),
     });
 
-    // Можно добавить интерсепторы для обработки ошибок
+    // интерсептор для обработки ошибок
     this.client.interceptors.response.use(
       response => response,
       error => {
@@ -37,7 +37,7 @@ export class ApiService {
     );
   }
 
-  // Пример метода для получения пользователей
+  // Пример метода для получения скалолазов
   async getClimbers(): Promise<IClimber[]> {
     try {
       const response = await this.client.get('/climbers');
@@ -48,18 +48,7 @@ export class ApiService {
     }
   }
 
-  // Пример метода для создания пользователя
-//   async createUser(userData: Partial<User>): Promise<User> {
-//     try {
-//       const response = await this.client.post('/users', userData);
-//       return response.data;
-//     } catch (error) {
-//       console.error('Failed to create user:', error);
-//       throw error;
-//     }
-//   }
-
-  // Пример метода для получения пользователя по ID
+  // Пример метода для получения скалолаза по allClimbId
   async getClimberByAllclimbId(allClimbId: number): Promise<IClimber> {
     try {
       const response = await this.client.get(`/climbers/allClimbId/${allClimbId}`);
@@ -70,10 +59,4 @@ export class ApiService {
     }
   }
 
-//   // Добавьте другие методы в зависимости от вашего API
-//   async getOrders(userId?: number): Promise<any[]> {
-//     const url = userId ? `/orders?userId=${userId}` : '/orders';
-//     const response = await this.client.get(url);
-//     return response.data;
-//   }
 }
