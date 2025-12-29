@@ -17,9 +17,28 @@ if (!token) {
 }
 
 // Create bot instance without polling
-const bot = new TelegramBot(token, { polling: false });
+const bot = new TelegramBot(token, {
+  polling: process.env.NODE_ENV !== 'production'
+});
+
+
 const apiService = new ApiService(config);
 const botService = new BotService(bot, apiService, frontUrl);
+
+if (process.env.NODE_ENV === 'development') {
+  bot.on('message', (msg) => {
+    botService.handleUpdate({
+      update_id: msg.message_id,
+      message: msg,
+    });
+  });
+  bot.on('callback_query', (query: TelegramBot.CallbackQuery) => {
+    botService.handleUpdate({
+      update_id: parseInt(query.id, 10) % 1_000_000, // делаем из строки число
+      callback_query: query,
+    });
+  });
+}
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== 'POST') {
