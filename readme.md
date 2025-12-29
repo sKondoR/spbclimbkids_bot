@@ -34,4 +34,9 @@ LOG_LEVEL=info<br>
 `npm run dev:watch`<br>
 
 <br><br>
-задеплоен на render.com
+
+## Проверки
+- проверка Webhook Configuration
+https://api.telegram.org/bot<YOUR_BOT_TOKEN>/setWebhook?url=https://your-vercel-app.vercel.app/api/webhook
+- Webhook Was Set
+https://api.telegram.org/bot<YOUR_BOT_TOKEN>/getWebhookInfo
