@@ -1,52 +1,39 @@
-// api/webhook.ts – Совместимо с Vercel
+// api/webhook.ts – Vercel will expose this as /api/webhook
 import { VercelRequest, VercelResponse } from '@vercel/node';
+import TelegramBot from 'node-telegram-bot-api';
 
-// Получаем токен из переменных окружения
-const token = process.env.TELEGRAM_BOT_TOKEN;
-if (!token) {
-  console.error('FATAL: TELEGRAM_BOT_TOKEN is missing');
-  process.exit(1); // Это остановит инициализацию функции
-}
+// Stub the bot – we won't poll, just use it to send
+const token = process.env.BOT_TOKEN;
+if (!token) throw new Error('BOT_TOKEN is missing');
 
-const TELEGRAM_API = `https://api.telegram.org/bot${token}`;
+const bot = new TelegramBot(token, { polling: false });
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== 'POST') {
     res.setHeader('Allow', ['POST']);
-    return res.status(405).json({ error: 'Method Not Allowed' });
+    return res.status(405).send('Method Not Allowed');
   }
 
+  console.log('Update received');
   const update = req.body;
-  console.log('Update received:', JSON.stringify(update, null, 2));
 
+  // Handle incoming update (like a message or command)
   try {
     if (update.message) {
       const chatId = update.message.chat.id;
       const text = update.message.text;
 
-      let replyText = 'Пока я только умею отвечать на /start :)';
       if (text === '/start') {
-        replyText = '👋 Привет! Я бот для SpbClimbKids!';
+        await bot.sendMessage(chatId, '👋 Привет! Я бот для SpbClimbKids!');
+      } else {
+        await bot.sendMessage(chatId, 'Пока я только умею отвечать на /start :)');
       }
-
-      // Отправляем сообщение через Telegram HTTP API
-      await fetch(`${TELEGRAM_API}/sendMessage`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          chat_id: chatId,
-          text: replyText,
-          parse_mode: 'HTML',
-        }),
-      });
     }
 
-    // Всегда отвечаем 200
+    // Always respond 200 quickly!
     return res.status(200).json({ ok: true });
-  } catch (err: any) {
-    console.error('Error sending message:', err);
-    return res.status(200).json({ ok: true, warning: 'Message send failed' });
+  } catch (err) {
+    console.error('Error handling update:', err);
+    return res.status(500).json({ error: 'Internal server error' });
   }
 }
