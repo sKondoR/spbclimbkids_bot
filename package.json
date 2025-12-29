@@ -26,5 +26,14 @@
   },
   "engines": {
     "node": "24.x"
+  },
+  "vercel": {
+    "builds": [
+      {
+        "src": "dist/index.js",
+        "use": "@vercel/node"
+      }
+    ],
+    "output": "dist"
   }
 }
