@@ -2,9 +2,9 @@
 import { VercelRequest, VercelResponse } from '@vercel/node';
 
 // Получаем токен из переменных окружения
-const token = process.env.BOT_TOKEN;
+const token = process.env.TELEGRAM_BOT_TOKEN;
 if (!token) {
-  console.error('FATAL: BOT_TOKEN is missing');
+  console.error('FATAL: TELEGRAM_BOT_TOKEN is missing');
   process.exit(1); // Это остановит инициализацию функции
 }
 
