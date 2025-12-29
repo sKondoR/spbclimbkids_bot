@@ -6,7 +6,7 @@ import TelegramBot from 'node-telegram-bot-api';
 const token = process.env.BOT_TOKEN;
 if (!token) throw new Error('BOT_TOKEN is missing');
 
-const bot = new TelegramBot(token, { polling: false });
+const bot = new TelegramBot(token, { polling: false, webHook: true });
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== 'POST') {
