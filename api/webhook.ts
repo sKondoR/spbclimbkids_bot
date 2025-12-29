@@ -1,58 +1,52 @@
-// api/webhook.ts – Vercel will expose this as /api/webhook
+// api/webhook.ts – Совместимо с Vercel
 import { VercelRequest, VercelResponse } from '@vercel/node';
-import TelegramBot from 'node-telegram-bot-api';
 
-// Проверяем токен
+// Получаем токен из переменных окружения
 const token = process.env.BOT_TOKEN;
 if (!token) {
-  console.error('FATAL: BOT_TOKEN is not set in environment variables');
-  throw new Error('BOT_TOKEN is missing');
+  console.error('FATAL: BOT_TOKEN is missing');
+  process.exit(1); // Это остановит инициализацию функции
 }
 
-// Создаём экземпляр бота (без polling)
-const bot = new TelegramBot(token, { polling: false });
+const TELEGRAM_API = `https://api.telegram.org/bot${token}`;
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
-  // Должен быть именно POST
   if (req.method !== 'POST') {
     res.setHeader('Allow', ['POST']);
     return res.status(405).json({ error: 'Method Not Allowed' });
   }
 
-  // Проверяем, есть ли тело
-  if (!req.body) {
-    console.warn('Empty request body received');
-    return res.status(400).json({ error: 'Bad Request: empty body' });
-  }
-
   const update = req.body;
-
-  console.log('Update received:', JSON.stringify(update, null, 2)); // Логируем структуру
+  console.log('Update received:', JSON.stringify(update, null, 2));
 
   try {
-    // Обработка входящего сообщения
-    if (update.message?.text && update.message.chat?.id) {
+    if (update.message) {
       const chatId = update.message.chat.id;
       const text = update.message.text;
 
+      let replyText = 'Пока я только умею отвечать на /start :)';
       if (text === '/start') {
-        await bot.sendMessage(chatId, '👋 Привет! Я бот для SpbClimbKids!');
-      } else {
-        await bot.sendMessage(chatId, 'Пока я только умею отвечать на /start :)');
+        replyText = '👋 Привет! Я бот для SpbClimbKids!';
       }
+
+      // Отправляем сообщение через Telegram HTTP API
+      await fetch(`${TELEGRAM_API}/sendMessage`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          chat_id: chatId,
+          text: replyText,
+          parse_mode: 'HTML',
+        }),
+      });
     }
 
-    // Всегда быстро отвечаем 200, чтобы Vercel не думал, что функция упала
+    // Всегда отвечаем 200
     return res.status(200).json({ ok: true });
   } catch (err: any) {
-    console.error('Error handling Telegram update:', err);
-
-    // Не все ошибки Telegram нужно превращать в 500 — некоторые можно игнорировать
-    if (err.response) {
-      console.error('Telegram API error response:', err.response.body);
-    }
-
-    // Отвечаем 200, чтобы Telegram не повторял вебхук при временной ошибке
-    return res.status(200).json({ ok: true, warning: 'Update processed with error' });
+    console.error('Error sending message:', err);
+    return res.status(200).json({ ok: true, warning: 'Message send failed' });
   }
 }
