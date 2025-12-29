@@ -26,5 +26,13 @@
   },
   "engines": {
     "node": "24.x"
+  },
+  "vercel": {
+    "builds": [
+      {
+        "src": "api/webhook.ts",
+        "use": "@vercel/node"
+      }
+    ]
   }
 }
