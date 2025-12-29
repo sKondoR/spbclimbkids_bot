@@ -1,6 +1,13 @@
 import TelegramBot from 'node-telegram-bot-api';
 import { ApiService } from '../api/api.service';
 
+const COMMANDS_INFO = `
+/climbers - Получить список загруженных с Allclimb скалолазов
+/climber <allClimbId> - Получить инфу о скалолазе
+/leads <allClimbId> <query> - Получить пролазы трудности скалолаза
+/boulders <allClimbId> <query> - Получить пролазы боулдеров скалолаза
+`;
+
 // Интерфейсы — убедитесь, что они где-то определены
 interface IRoute {
   name: string;
@@ -35,7 +42,7 @@ export class BotService {
 
       // Обработка команд
       if (text.startsWith('/')) {
-        await this.handleCommand(chatId, text, msg);
+        await this.handleCommand(chatId, text);
       } else {
         // Обработка обычных сообщений
         await this.bot.sendMessage(
@@ -47,10 +54,10 @@ export class BotService {
   }
 
   // 🔄 Обработка команд
-  private async handleCommand(chatId: number, text: string, msg: TelegramBot.Message) {
+  async handleCommand(chatId: number, text: string) {
     const climberMatch = text.match(/^\/climber\s+(\d+)$/i);
-    const leadsMatch = text.match(/^\/leads\s+(\d+)\s+(.+)$/i);
-    const bouldersMatch = text.match(/^\/boulders\s+(\d+)\s+(.+)$/i);
+    const leadsMatch = text.match(/^\/leads\s+(\d+)(?:\s+(.+))?$/i);
+    const bouldersMatch = text.match(/^\/boulders\s+(\d+)(?:\s+(.+))?$/i);
     const climbersMatch = text.match(/^\/climbers$/i);
 
     if (climbersMatch) {
@@ -60,23 +67,22 @@ export class BotService {
       await this.handleClimberCommand(chatId, allClimbId);
     } else if (leadsMatch) {
       const allClimbId = parseInt(leadsMatch[1], 10);
-      const query = leadsMatch[2].trim();
+      const query = leadsMatch[2]?.trim() || '';
       await this.handleLeadsCommand(chatId, allClimbId, query);
     } else if (bouldersMatch) {
       const allClimbId = parseInt(bouldersMatch[1], 10);
-      const query = bouldersMatch[2].trim();
+      const query = bouldersMatch[2]?.trim() || '';
       await this.handleBouldersCommand(chatId, allClimbId, query);
     } else if (text === '/start') {
       await this.bot.sendMessage(chatId, `👋 Привет! Я бот для SpbClimbKids!
-        /start - Начать работу
-        /climbers - Получить список загруженных с Allclimb скалолазов
-        /climber <allClimbId> - Получить инфу о скалолазе
-        /leads <allClimbId> <query> - Получить пролазы трудности скалолаза
-        /boulders <allClimbId> <query> - Получить пролазы боулдеров скалолаза
-      `,
+          /start - Начать работу
+          ${COMMANDS_INFO}
+        `
       );
     } else {
-      await this.bot.sendMessage(chatId, 'Неизвестная команда. Используйте:\n/climbers — список скалолазов\n/climber 123 — информация\n/leads 123 запрос — пролазы\n/boulders 123 запрос — боулдеры');
+      await this.bot.sendMessage(chatId, `Неизвестная команда. Используйте:
+        ${COMMANDS_INFO}
+      `);
     }
   }
 
@@ -92,18 +98,24 @@ export class BotService {
         return;
       }
 
-      const climbersList = climbers
-        .map(
-          (climber) =>
-            `<code>/climber ${climber.allClimbId}</code> 👤 ${climber.name} / allClimbId: <a href="https://www.allclimb.com/ru/climber/${climber.allClimbId}/">${climber.allClimbId}</a>`
-        )
-        .join('\n\n');
+    const inlineKeyboard = climbers.map((climber) => [
+      {
+        text: `👤 ${climber.name} (Allclimb: ${climber.allClimbId})`,
+        callback_data: `_climber ${climber.allClimbId}`,
+      },
+    ]);
 
-      await this.bot.sendMessage(
-        chatId,
-        `Всего сохранённых скалолазов: <b>${climbers.length}</b>\n\n${climbersList}`,
-        { parse_mode: 'HTML', disable_web_page_preview: true }
-      );
+    await this.bot.sendMessage(
+      chatId,
+      `Всего сохранённых скалолазов: <b>${climbers.length}</b>\n\n
+        Выберите скалолаза, чтобы посмотреть информацию:`,
+      {
+        parse_mode: 'HTML',
+        reply_markup: {
+          inline_keyboard: inlineKeyboard,
+        },
+      }
+    );
     } catch (error) {
       console.error('Error in /climbers:', error);
       await this.bot.sendMessage(chatId, '❌ Ошибка при получении скалолазов');
@@ -131,7 +143,7 @@ export class BotService {
         return;
       }
 
-      const filtered = this.filterRoutes(climber.leads, query);
+      const filtered = query ? this.filterRoutes(climber.leads, query) : climber.leads;
       await this.bot.sendMessage(chatId, `Пролазы трудности (${filtered.length}):`);
       await this.showRoutes(chatId, filtered);
     } catch (error) {
@@ -139,7 +151,7 @@ export class BotService {
     }
   }
 
-  private async handleBouldersCommand(chatId: number, allClimbId: number, query: string) {
+  private async handleBouldersCommand(chatId: number, allClimbId: number, query?: string) {
     try {
       const climber = await this.apiService.getClimberByAllclimbId(allClimbId);
       if (!climber) throw new Error('not found');
@@ -148,7 +160,7 @@ export class BotService {
         return;
       }
 
-      const filtered = this.filterRoutes(climber.boulders, query);
+      const filtered = query ? this.filterRoutes(climber.boulders, query) : climber.boulders;
       await this.bot.sendMessage(chatId, `Пролазы боулдеринга (${filtered.length}):`);
       await this.showRoutes(chatId, filtered);
     } catch (error) {
@@ -167,6 +179,14 @@ export class BotService {
 
     await this.bot.sendMessage(chatId, climberInfo, {
       parse_mode: 'HTML',
+      reply_markup: {
+        inline_keyboard: [
+          [
+              { text: 'Пролазы трудность', callback_data: `_leads ${climber.allClimbId}` },
+              { text: 'Пролазы боулдер', callback_data: `_boulders ${climber.allClimbId}` },
+          ],
+        ],
+      },
       disable_web_page_preview: true,
     });
   }

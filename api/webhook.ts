@@ -32,13 +32,21 @@ if (process.env.NODE_ENV === 'development') {
       message: msg,
     });
   });
-  bot.on('callback_query', (query: TelegramBot.CallbackQuery) => {
-    botService.handleUpdate({
-      update_id: parseInt(query.id, 10) % 1_000_000, // делаем из строки число
-      callback_query: query,
-    });
-  });
 }
+
+bot.on('callback_query', (query: TelegramBot.CallbackQuery) => {
+  console.log('callback_query', query);
+  const chatId = query.message?.chat.id;
+  const data = query.data;
+
+  if (!chatId) return;
+
+  const command = data?.replace('_', '/') || '';
+  botService.handleCommand(
+    chatId,
+    command
+  );
+});
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== 'POST') {

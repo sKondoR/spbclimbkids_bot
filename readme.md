@@ -34,6 +34,8 @@ LOG_LEVEL=info<br>
 `npm run dev:watch`<br>
 
 <br><br>
+## Стэк
+node-telegram-bot-api, express, axios
 
 ## Проверки
 - проверка Webhook Configuration
