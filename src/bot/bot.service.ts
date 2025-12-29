@@ -62,7 +62,7 @@ export class BotService {
         }
 
         const climbersList = climbers.map(climber => 
-          `<a href="tg://bot_command?command=climber&bot_username=@spbclimbkids_bot&arguments=${climber.allClimbId}">👤 ${climber.name}</a> / allClimbId: <a href="https://www.allclimb.com/ru/climber/${climber.allClimbId}/">${climber.allClimbId}</a>`
+          `<code>/climber ${climber.allClimbId}</code>👤 ${climber.name}</a> / allClimbId: <a href="https://www.allclimb.com/ru/climber/${climber.allClimbId}/">${climber.allClimbId}</a>`
         ).join('\n');
 
         await this.bot.sendMessage(chatId,
