@@ -1,12 +1,25 @@
-// api/webhook.ts – Vercel will expose this as /api/webhook
+// api/webhook.ts
 import { VercelRequest, VercelResponse } from '@vercel/node';
 import TelegramBot from 'node-telegram-bot-api';
 
-// Stub the bot – we won't poll, just use it to send
-const token = process.env.TELEGRAM_BOT_TOKEN;
-if (!token) throw new Error('TELEGRAM_BOT_TOKEN is missing');
+// Import your services
+import { ConfigService } from '../src/config/config.service';
+import { ApiService } from '../src/api/api.service';
+import { BotService } from '../src/bot/bot.service';
 
+// Initialize config and bot
+const config = new ConfigService();
+const token = config.get('TELEGRAM_BOT_TOKEN');
+const frontUrl = config.get('FRONT_URL');
+
+if (!token) {
+  throw new Error('TELEGRAM_BOT_TOKEN is missing');
+}
+
+// Create bot instance without polling
 const bot = new TelegramBot(token, { polling: false });
+const apiService = new ApiService(config);
+const botService = new BotService(bot, apiService, frontUrl);
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== 'POST') {
@@ -14,26 +27,16 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(405).send('Method Not Allowed');
   }
 
-  console.log('Update received');
+  console.log('📨 Update received');
   const update = req.body;
 
-  // Handle incoming update (like a message or command)
+  // Pass update to BotService for handling
   try {
-    if (update.message) {
-      const chatId = update.message.chat.id;
-      const text = update.message.text;
-
-      if (text === '/start') {
-        await bot.sendMessage(chatId, '👋 Привет! Я бот для SpbClimbKids!');
-      } else {
-        await bot.sendMessage(chatId, 'Пока я только умею отвечать на /start :)');
-      }
-    }
-
-    // Always respond 200 quickly!
-    return res.status(200).json({ ok: true });
+    await botService.handleUpdate(update);
   } catch (err) {
-    console.error('Error handling update:', err);
-    return res.status(500).json({ error: 'Internal server error' });
+    console.error('Error in BotService:', err);
   }
+
+  // Always respond quickly
+  res.status(200).json({ ok: true });
 }
