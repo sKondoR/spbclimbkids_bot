@@ -32,21 +32,20 @@ if (process.env.NODE_ENV === 'development') {
       message: msg,
     });
   });
+
+  bot.on('callback_query', (query: TelegramBot.CallbackQuery) => {
+    const chatId = query.message?.chat.id;
+    const data = query.data;
+
+    if (!chatId) return;
+
+    const command = data?.replace('_', '/') || '';
+    botService.handleCommand(
+      chatId,
+      command
+    );
+  });
 }
-
-bot.on('callback_query', (query: TelegramBot.CallbackQuery) => {
-  console.log('callback_query', query);
-  const chatId = query.message?.chat.id;
-  const data = query.data;
-
-  if (!chatId) return;
-
-  const command = data?.replace('_', '/') || '';
-  botService.handleCommand(
-    chatId,
-    command
-  );
-});
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== 'POST') {
@@ -54,7 +53,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(405).send('Method Not Allowed');
   }
 
-  console.log('📨 Update received');
   const update = req.body;
 
   // Pass update to BotService for handling

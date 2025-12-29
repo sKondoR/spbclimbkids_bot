@@ -33,6 +33,18 @@ export class BotService {
 
   // 🟩 Главный метод для обработки обновлений (вместо bot.on)
   async handleUpdate(update: TelegramBot.Update): Promise<void> {
+      // Handle callback_query
+      if (update.callback_query) {
+        const query = update.callback_query;
+        const chatId = query.message?.chat.id;
+        const data = query.data;
+
+        if (chatId && data) {
+          const command = data.replace('_', '/') || '';
+          return this.handleCommand(chatId, command);
+        }
+      }
+
     if (update.message) {
       const msg = update.message;
       const chatId = msg.chat.id;
@@ -117,8 +129,8 @@ export class BotService {
       }
     );
     } catch (error) {
-      console.error('Error in /climbers:', error);
-      await this.bot.sendMessage(chatId, '❌ Ошибка при получении скалолазов');
+      console.error('Ошибка при получении скалолазов /climbers:', error);
+      await this.bot.sendMessage(chatId, '❌ Ошибка при получении скалолазов /climbers');
     }
   }
 
@@ -129,7 +141,7 @@ export class BotService {
 
       await this.showClimberInfo(chatId, climber as IClimber);
     } catch (error) {
-      console.log('error: ', error);
+      console.log(`Скалолаз с allclimbId ${allClimbId} не найден: `, error);
       await this.bot.sendMessage(chatId, `❌ Скалолаз с allclimbId ${allClimbId} не найден`);
     }
   }
