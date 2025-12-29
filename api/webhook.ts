@@ -3,8 +3,8 @@ import { VercelRequest, VercelResponse } from '@vercel/node';
 import TelegramBot from 'node-telegram-bot-api';
 
 // Stub the bot – we won't poll, just use it to send
-const token = process.env.BOT_TOKEN;
-if (!token) throw new Error('BOT_TOKEN is missing');
+const token = process.env.TELEGRAM_BOT_TOKEN;
+if (!token) throw new Error('TELEGRAM_BOT_TOKEN is missing');
 
 const bot = new TelegramBot(token, { polling: false });
 
