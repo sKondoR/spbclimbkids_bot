@@ -20,12 +20,11 @@
 - **node-telegram-bot-api** - библиотека-обертка для работы с api телеграмма
 
 ## .env
+```
 TELEGRAM_BOT_TOKEN=Токен бота от @BotFather<br>
 FRONT_URL=URL прод фронта<br>
 API_URL=URL вашего NestJS API<br>
-Дополнительные настройки (опционально):<br>
-NODE_ENV=development<br>
-LOG_LEVEL=info<br>
+```
 
 ## Запуск бота
 1. Загрузи все используемые библиотеки командой: <br>
