@@ -37,11 +37,12 @@ LOG_LEVEL=info<br>
 ## Стэк
 node-telegram-bot-api, express, axios
 
-## Проверки
+### Проверки
 - проверка Webhook Configuration
 https://api.telegram.org/bot<YOUR_BOT_TOKEN>/setWebhook?url=https://your-vercel-app.vercel.app/api/webhook
 - Webhook Was Set
 https://api.telegram.org/bot<YOUR_BOT_TOKEN>/getWebhookInfo
+```
 {
   "url": "https://spbclimbkids-bot.vercel.app/api/webhook",
   "has_custom_certificate": false,
@@ -51,3 +52,4 @@ https://api.telegram.org/bot<YOUR_BOT_TOKEN>/getWebhookInfo
   "max_connections": 40,
   "ip_address": "123.123.123.123"
 }
+```
